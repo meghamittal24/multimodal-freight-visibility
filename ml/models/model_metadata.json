@@ -1,0 +1,34 @@
+{
+  "model_name": "Multimodal Delay Risk Classifier (XGBoost/GBDT)",
+  "version": "v1.4.2",
+  "trained_at": "2026-08-20T14:30:55.572521",
+  "samples": 7500,
+  "metrics": {
+    "roc_auc": 0.7485,
+    "accuracy": 0.6853,
+    "precision": 0.7353,
+    "recall": 0.782,
+    "f1_score": 0.7579,
+    "delay_mae_minutes": 108.54
+  },
+  "features": [
+    "mode",
+    "corridor",
+    "commodity",
+    "is_perishable",
+    "planned_duration_hrs",
+    "hour_of_day",
+    "day_of_week",
+    "weather",
+    "toll_congestion_index",
+    "rake_turnaround_hrs",
+    "port_berth_queue_length",
+    "customs_clearance_hrs"
+  ],
+  "pilot_corridors": [
+    "COR-LDH-MUN",
+    "COR-DEL-JNP",
+    "COR-SOL-NHA",
+    "COR-BBU-VIZ"
+  ]
+}
