@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Run FreightPulse Platform",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/start_platform.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}

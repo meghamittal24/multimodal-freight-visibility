@@ -1,0 +1,245 @@
+{
+  "shipments": [
+    {
+      "id": "SHIP-001",
+      "sender": "Delhi Pharma Corp",
+      "receiver": "Mumbai Health Center",
+      "cargoType": "Medicines",
+      "weight": 1500,
+      "origin": "Delhi Railway Yard",
+      "destination": "Mumbai Warehouse",
+      "status": "Delivered",
+      "currentLocation": [
+        19.1136,
+        72.906
+      ],
+      "vehicle": "Truck",
+      "routeType": "Road",
+      "pathIndex": 4,
+      "alert": null,
+      "qrCodeUrl": "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=SHIP-001"
+    },
+    {
+      "id": "SHIP-002",
+      "sender": "Agro Tech Delhi",
+      "receiver": "Western Distributors",
+      "cargoType": "General",
+      "weight": 8500,
+      "origin": "Delhi Railway Yard",
+      "destination": "Mumbai Warehouse",
+      "status": "In Transit - Rail",
+      "currentLocation": [
+        21.0478,
+        75.7876
+      ],
+      "vehicle": "Train",
+      "routeType": "Rail",
+      "pathIndex": 9,
+      "alert": null,
+      "qrCodeUrl": "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=SHIP-002"
+    },
+    {
+      "id": "SHIP-003",
+      "sender": "Apex Chemicals",
+      "receiver": "Mumbai Logistics Hub",
+      "cargoType": "Chemicals",
+      "weight": 3200,
+      "origin": "Delhi Railway Yard",
+      "destination": "Mumbai Warehouse",
+      "status": "At Handover Point",
+      "currentLocation": [
+        19.0178,
+        72.8478
+      ],
+      "vehicle": "Train",
+      "routeType": "Rail",
+      "pathIndex": 13,
+      "alert": null,
+      "qrCodeUrl": "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=SHIP-003"
+    },
+    {
+      "id": "SHIP-004",
+      "sender": "Vanguard Jewels",
+      "receiver": "Mumbai Safe House",
+      "cargoType": "High-Value",
+      "weight": 450,
+      "origin": "Delhi Railway Yard",
+      "destination": "Mumbai Warehouse",
+      "status": "Pending Delivery",
+      "currentLocation": [
+        19.135,
+        72.815
+      ],
+      "vehicle": "Truck",
+      "routeType": "Road",
+      "pathIndex": 4,
+      "isDeviated": true,
+      "alert": {
+        "type": "Route Deviation",
+        "message": "CRITICAL: Truck deviated 4.2km from standard road route!",
+        "timestamp": "2026-08-14T17:50:35.462Z"
+      },
+      "qrCodeUrl": "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=SHIP-004"
+    }
+  ],
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": "2026-08-14T12:00:00.000Z",
+      "data": {
+        "info": "CargoChain Genesis Block"
+      },
+      "previousHash": "0",
+      "nonce": 0,
+      "hash": "0f9f0728573ca9d174dfd6a2956b8693bffd331dc37b0b3f8e02122961c5cfb5"
+    },
+    {
+      "index": 1,
+      "timestamp": "2026-08-14T10:00:00.000Z",
+      "data": {
+        "type": "CREATE",
+        "shipmentId": "SHIP-001",
+        "sender": "Delhi Pharma Corp",
+        "receiver": "Mumbai Health Center",
+        "cargoType": "Medicines",
+        "weight": 1500,
+        "origin": "Delhi Railway Yard",
+        "destination": "Mumbai Warehouse"
+      },
+      "previousHash": "0f9f0728573ca9d174dfd6a2956b8693bffd331dc37b0b3f8e02122961c5cfb5",
+      "nonce": 142,
+      "hash": "00c2b0ac2c0c6ef00b7a30901ca324e8f3c69398190f0c6ba68e349ee255a1cb"
+    },
+    {
+      "index": 2,
+      "timestamp": "2026-08-14T12:30:00.000Z",
+      "data": {
+        "type": "HANDOVER",
+        "shipmentId": "SHIP-001",
+        "officer": "R. K. Sharma (Railways)",
+        "driver": "Amit Singh (MH-12-G-4412)",
+        "weightConfirmed": 1500,
+        "signatureHash": "0x7f3b821a9de4c1d683a7585aef01b349281a"
+      },
+      "previousHash": "00c2b0ac2c0c6ef00b7a30901ca324e8f3c69398190f0c6ba68e349ee255a1cb",
+      "nonce": 307,
+      "hash": "00b0887128c9e310ee004adbfd50d5981283c53a42de858eb0bff409da3d802d"
+    },
+    {
+      "index": 3,
+      "timestamp": "2026-08-14T14:15:00.000Z",
+      "data": {
+        "type": "DELIVERY",
+        "shipmentId": "SHIP-001",
+        "recipientSignature": "0x992cf4a29ab8126b8cf928a381de0172bf421",
+        "status": "VERIFIED_DELIVERED"
+      },
+      "previousHash": "00b0887128c9e310ee004adbfd50d5981283c53a42de858eb0bff409da3d802d",
+      "nonce": 38,
+      "hash": "0014ba774734de530c5059e1053e66e95382a2cfb305d86f034f92171a00d2d0"
+    },
+    {
+      "index": 4,
+      "timestamp": "2026-08-14T16:00:00.000Z",
+      "data": {
+        "type": "CREATE",
+        "shipmentId": "SHIP-002",
+        "sender": "Agro Tech Delhi",
+        "receiver": "Western Distributors",
+        "cargoType": "General",
+        "weight": 8500,
+        "origin": "Delhi Railway Yard",
+        "destination": "Mumbai Warehouse"
+      },
+      "previousHash": "0014ba774734de530c5059e1053e66e95382a2cfb305d86f034f92171a00d2d0",
+      "nonce": 104,
+      "hash": "00e903c9a65bb8051090b1d3e684e278c682e781e4fc011857fc894a8c431100"
+    },
+    {
+      "index": 5,
+      "timestamp": "2026-08-14T18:00:00.000Z",
+      "data": {
+        "type": "CREATE",
+        "shipmentId": "SHIP-003",
+        "sender": "Apex Chemicals",
+        "receiver": "Mumbai Logistics Hub",
+        "cargoType": "Chemicals",
+        "weight": 3200,
+        "origin": "Delhi Railway Yard",
+        "destination": "Mumbai Warehouse"
+      },
+      "previousHash": "00e903c9a65bb8051090b1d3e684e278c682e781e4fc011857fc894a8c431100",
+      "nonce": 93,
+      "hash": "0081c279f4763bc1876881b2ab7a41f8b96e22dbc6017226c8db209475f2fd79"
+    },
+    {
+      "index": 6,
+      "timestamp": "2026-08-14T19:00:00.000Z",
+      "data": {
+        "type": "CREATE",
+        "shipmentId": "SHIP-004",
+        "sender": "Vanguard Jewels",
+        "receiver": "Mumbai Safe House",
+        "cargoType": "High-Value",
+        "weight": 450,
+        "origin": "Delhi Railway Yard",
+        "destination": "Mumbai Warehouse"
+      },
+      "previousHash": "0081c279f4763bc1876881b2ab7a41f8b96e22dbc6017226c8db209475f2fd79",
+      "nonce": 105,
+      "hash": "00efccbd7402e89c05f9f5d9396b952c2c27894dfe5bdef620786b453aad31d8"
+    },
+    {
+      "index": 7,
+      "timestamp": "2026-08-14T21:00:00.000Z",
+      "data": {
+        "type": "HANDOVER",
+        "shipmentId": "SHIP-004",
+        "officer": "S. K. Verma (Railways)",
+        "driver": "Karan Johar (MH-02-F-9901)",
+        "weightConfirmed": 450,
+        "signatureHash": "0xab88d234a9ef1cde22881b374dcf73661e73"
+      },
+      "previousHash": "00efccbd7402e89c05f9f5d9396b952c2c27894dfe5bdef620786b453aad31d8",
+      "nonce": 7,
+      "hash": "00dba84b522fccb014b67c986da68c1045af3a90544916842e2314606b3ed60a"
+    },
+    {
+      "index": 8,
+      "timestamp": "2026-08-14T22:30:00.000Z",
+      "data": {
+        "type": "INCIDENT",
+        "subtype": "ROUTE_DEVIATION",
+        "shipmentId": "SHIP-004",
+        "message": "CRITICAL: Truck deviated 4.2km from standard road route!",
+        "lastKnownGPS": [
+          19.1,
+          72.825
+        ]
+      },
+      "previousHash": "00dba84b522fccb014b67c986da68c1045af3a90544916842e2314606b3ed60a",
+      "nonce": 337,
+      "hash": "00a5896fe87cf6eebdf398d9c5361a72294c13d1e4627b7d16466f10f1791437"
+    }
+  ],
+  "alerts": [
+    {
+      "id": "A-9tfiwvgmd",
+      "shipmentId": "SHIP-004",
+      "type": "delivery_pending",
+      "title": "Awaiting Scan",
+      "message": "Shipment SHIP-004 has reached destination warehouse. Awaiting QR scan delivery confirmation.",
+      "timestamp": "2026-08-14T17:50:41.302Z",
+      "severity": "success"
+    },
+    {
+      "id": "A-001",
+      "shipmentId": "SHIP-004",
+      "type": "deviation",
+      "title": "Route Deviation Alert",
+      "message": "Shipment SHIP-004 (High-Value) has deviated from path near Sion!",
+      "timestamp": "2026-08-14T17:50:35.482Z",
+      "severity": "high"
+    }
+  ]
+}

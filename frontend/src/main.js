@@ -133,15 +133,21 @@ function renderApp() {
         </div>
 
         <!-- View Switcher -->
-        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
-          <button onclick="setViewMode('split')" class="px-3 py-1.5 rounded-lg transition-all ${appState.viewMode === 'split' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
-            🖥️ 📱 Connected Split View
+        <div class="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+          <button onclick="setViewMode('split')" class="px-2.5 py-1.5 rounded-lg transition-all ${appState.viewMode === 'split' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+            🖥️ 📱 Connected Split
           </button>
-          <button onclick="setViewMode('admin')" class="px-3 py-1.5 rounded-lg transition-all ${appState.viewMode === 'admin' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+          <button onclick="setViewMode('admin')" class="px-2.5 py-1.5 rounded-lg transition-all ${appState.viewMode === 'admin' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
             🖥️ Admin Tower
           </button>
-          <button onclick="setViewMode('driver')" class="px-3 py-1.5 rounded-lg transition-all ${appState.viewMode === 'driver' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+          <button onclick="setViewMode('driver')" class="px-2.5 py-1.5 rounded-lg transition-all ${appState.viewMode === 'driver' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
             📱 Driver App
+          </button>
+          <button onclick="setViewMode('shipper')" class="px-2.5 py-1.5 rounded-lg transition-all ${appState.viewMode === 'shipper' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+            📊 Shipper (Company)
+          </button>
+          <button onclick="setViewMode('port')" class="px-2.5 py-1.5 rounded-lg transition-all ${appState.viewMode === 'port' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+            ⚓ Port Operator
           </button>
         </div>
 
@@ -189,7 +195,7 @@ function renderApp() {
     ${appState.showQrModal ? renderQrModal(currentVeh) : ''}
   `;
 
-  if (appState.viewMode !== 'driver') {
+  if (appState.viewMode === 'split' || appState.viewMode === 'admin') {
     setTimeout(initConnectedMap, 60);
   }
 }
@@ -200,6 +206,12 @@ function renderWorkspace(currentVeh) {
   }
   if (appState.viewMode === 'driver') {
     return `<div class="max-w-md mx-auto">${renderDriverPhone(currentVeh)}</div>`;
+  }
+  if (appState.viewMode === 'shipper') {
+    return renderShipperDashboard();
+  }
+  if (appState.viewMode === 'port') {
+    return renderPortOperatorDashboard();
   }
 
   // Side-by-Side Connected View
@@ -220,7 +232,7 @@ function renderWorkspace(currentVeh) {
 // 1. ADMIN DISPATCH TOWER (Functional Control Center)
 // -------------------------------------------------------------
 function renderAdminTower(currentVeh) {
-  const isDelay = currentVeh.status.includes('DELAY');
+  const isDelay = currentVeh.status.includes('DELAY') || currentVeh.status.includes('JAM');
 
   return `
     <div class="space-y-4">
@@ -237,7 +249,7 @@ function renderAdminTower(currentVeh) {
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
           ${appState.vehicles.map(v => {
             const isSelected = v.id === appState.selectedVehicleId;
-            const isVDelay = v.status.includes('DELAY');
+            const isVDelay = v.status.includes('DELAY') || v.status.includes('JAM');
             return `
               <div 
                 onclick="selectVehicle('${v.id}')"
@@ -374,11 +386,46 @@ function renderAdminTower(currentVeh) {
 // -------------------------------------------------------------
 function renderDriverPhone(vehicle) {
   const isHinglish = appState.driverLang === 'hinglish';
-  const isDelay = vehicle.status.includes('DELAY');
+  const isDelay = vehicle.status.includes('DELAY') || vehicle.status.includes('JAM');
 
   return `
-    <div class="bg-slate-900 p-3.5 rounded-3xl border-4 border-slate-800 shadow-2xl space-y-3 max-w-sm mx-auto text-white">
+    <div class="bg-slate-900 p-3.5 rounded-3xl border-4 border-slate-800 shadow-2xl space-y-3 max-w-sm mx-auto text-white relative overflow-hidden">
       
+      <!-- ⭐ REAL-TIME LIVE PUSH NOTIFICATION POPUP OVERLAY ⭐ -->
+      ${isDelay && !vehicle.acknowledged ? `
+        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 rounded-2xl">
+          <div class="bg-rose-600 text-white p-5 rounded-2xl shadow-2xl border-2 border-rose-400 space-y-3.5 text-center">
+            
+            <div class="flex flex-col items-center gap-1.5">
+              <span class="w-12 h-12 bg-rose-800 text-white rounded-full flex items-center justify-center text-2xl font-bold animate-pulse shadow-md">
+                🚨
+              </span>
+              <span class="text-xs font-black uppercase tracking-wider bg-rose-900 px-2.5 py-1 rounded font-mono mt-1">
+                NEW DISPATCH ORDER
+              </span>
+              <span class="text-[11px] font-bold text-rose-200 font-mono">+${vehicle.delayMins}m Predicted Delay</span>
+            </div>
+
+            <p class="text-xs text-rose-50 leading-relaxed font-semibold">
+              ${isHinglish ? vehicle.alertHinglish : vehicle.alertEnglish}
+            </p>
+
+            <div class="bg-rose-800/80 p-2.5 rounded-lg font-mono font-bold text-[11px] border border-rose-500/30">
+              👉 COMMAND: ${vehicle.dispatchOrder}
+            </div>
+
+            <!-- 1-Tap Acknowledge Button -->
+            <button 
+              onclick="driverAcknowledge('${vehicle.id}')" 
+              class="w-full py-3 px-4 bg-white hover:bg-slate-100 text-rose-700 font-black rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-1.5 active:scale-95 border-2 border-white"
+            >
+              <span>👉 ${isHinglish ? 'OK, Samjh Gaya (Confirm)' : 'Acknowledge & Confirm Order'}</span>
+            </button>
+            
+          </div>
+        </div>
+      ` : ''}
+
       <!-- Phone Top Bar -->
       <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono px-1">
         <span>09:41</span>
@@ -408,44 +455,8 @@ function renderDriverPhone(vehicle) {
         </div>
       </div>
 
-      <!-- ⭐ REAL-TIME LIVE NOTIFICATION POPUP CARD ⭐ -->
-      ${isDelay ? `
-        <div class="bg-rose-600 text-white p-4 rounded-2xl shadow-xl space-y-2.5 border-2 border-rose-400 animate-pulse">
-          
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-black uppercase tracking-wider bg-rose-800 px-2 py-0.5 rounded font-mono flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-              HEAD OFFICE ORDER
-            </span>
-            <span class="text-[10px] font-bold text-rose-200 font-mono">+${vehicle.delayMins}m Delay</span>
-          </div>
-
-          <p class="text-xs text-rose-50 leading-relaxed font-medium">
-            ${isHinglish ? vehicle.alertHinglish : vehicle.alertEnglish}
-          </p>
-
-          <div class="bg-rose-800/80 p-2 rounded-lg text-center font-bold text-xs">
-            👉 ${vehicle.dispatchOrder}
-          </div>
-
-          <!-- 1-Tap Acknowledge Button -->
-          <div class="pt-1">
-            ${vehicle.acknowledged ? `
-              <div class="w-full py-2.5 bg-emerald-500 text-white font-bold rounded-xl text-center text-xs flex items-center justify-center gap-1.5 shadow-inner">
-                <span>✓ Aadesh Sweekar Kiya (Order Confirmed)</span>
-              </div>
-            ` : `
-              <button 
-                onclick="driverAcknowledge('${vehicle.id}')" 
-                class="w-full py-3 px-3 bg-white hover:bg-slate-100 text-rose-700 font-black rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-1.5 active:scale-95"
-              >
-                <span>👉 ${isHinglish ? 'OK, Samjh Gaya (Click to Confirm)' : 'Acknowledge & Confirm Order'}</span>
-              </button>
-            `}
-          </div>
-
-        </div>
-      ` : vehicle.status === 'HELD' ? `
+      <!-- ⭐ POST-ACKNOWLEDGMENT DISPATCH STATUS CARD ⭐ -->
+      ${vehicle.status === 'HELD' ? `
         <div class="bg-purple-900/60 border border-purple-500/50 p-3.5 rounded-2xl text-xs space-y-1">
           <div class="font-bold text-purple-300">🛑 Train Held Safely at Palanpur Station</div>
           <div class="text-slate-300 text-[11px]">Engine idle. Waiting for 03:30 AM vessel berthing window. ${vehicle.savings}.</div>
@@ -634,6 +645,164 @@ function initConnectedMap() {
   L.circleMarker([30.9010, 75.8573], { radius: 6, color: '#16a34a', fillColor: '#16a34a', fillOpacity: 1 }).addTo(map).bindPopup('Ludhiana ICD');
   L.circleMarker([24.1724, 72.4346], { radius: 7, color: '#d97706', fillColor: '#d97706', fillOpacity: 1 }).addTo(map).bindPopup('Palanpur Siding (HOLD Point)');
   L.circleMarker([22.8390, 69.7042], { radius: 6, color: '#dc2626', fillColor: '#dc2626', fillOpacity: 1 }).addTo(map).bindPopup('Mundra Marine Port');
+}
+
+function renderShipperDashboard() {
+  return `
+    <div class="space-y-4 max-w-5xl mx-auto">
+      <!-- Header Banner -->
+      <div class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-5 rounded-2xl shadow-sm">
+        <h2 class="text-base font-bold">Jugaad Agro Exporters Ltd. &mdash; Client Portal</h2>
+        <p class="text-[11px] text-blue-100 mt-1">Enterprise Shipper Dashboard • Real-time SLA Tracking & Cost Savings</p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-slate-400 font-bold uppercase text-[9px] font-mono">Consignment Safety Rate</span>
+          <div class="text-base font-extrabold text-slate-800 mt-1">100% Intact</div>
+          <p class="text-[10px] text-emerald-600 font-mono mt-1">✓ Cold-chain holding averted 2 spoilage risks</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-slate-400 font-bold uppercase text-[9px] font-mono">Total Demurrage Saved</span>
+          <div class="text-base font-extrabold text-emerald-600 mt-1">₹77,000 Saved</div>
+          <p class="text-[10px] text-slate-500 font-mono mt-1">Via proactive rail siding holding orders</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-slate-400 font-bold uppercase text-[9px] font-mono">Carbon Abatement Credits</span>
+          <div class="text-base font-extrabold text-blue-600 mt-1">1,240.5 kg CO₂</div>
+          <p class="text-[10px] text-slate-500 font-mono mt-1">By shifting road freights to electric WDFC</p>
+        </div>
+      </div>
+
+      <!-- Active Shipments Detail Table -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">My Active Cargo Consignments</h3>
+          <span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-mono font-bold">2 Active</span>
+        </div>
+        
+        <div class="overflow-x-auto text-xs">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase border-b border-slate-100">
+                <th class="p-3">Consignment</th>
+                <th class="p-3">Route</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Mitigation / Action Taken</th>
+                <th class="p-3 text-right">Fines Saved</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="p-3">
+                  <div class="font-bold text-slate-800">PB-Oranges (Kinnow, 26 Tons)</div>
+                  <div class="text-[10px] text-slate-400 font-mono">ID: VEH-01 &bull; Perishable</div>
+                </td>
+                <td class="p-3">Ludhiana ICD → Mundra Port</td>
+                <td class="p-3">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">HELD (Safe)</span>
+                </td>
+                <td class="p-3 text-slate-600 font-medium">Held at Palanpur cold-shed siding due to Mundra Port tidal delay.</td>
+                <td class="p-3 text-right font-extrabold text-emerald-600">₹32,000</td>
+              </tr>
+              <tr>
+                <td class="p-3">
+                  <div class="font-bold text-slate-800">Auto Spare Parts (18 Tons)</div>
+                  <div class="text-[10px] text-slate-400 font-mono">ID: VEH-02 &bull; Industrial</div>
+                </td>
+                <td class="p-3">Gurugram → Mundra Port</td>
+                <td class="p-3">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800">REROUTED</span>
+                </td>
+                <td class="p-3 text-slate-600 font-medium">Rerouted from NH48 traffic bottleneck to Rewari electric rail.</td>
+                <td class="p-3 text-right font-extrabold text-emerald-600">₹45,000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPortOperatorDashboard() {
+  return `
+    <div class="space-y-4 max-w-5xl mx-auto">
+      <!-- Header Banner -->
+      <div class="bg-gradient-to-r from-teal-700 to-emerald-800 text-white p-5 rounded-2xl shadow-sm">
+        <h2 class="text-base font-bold">Mundra Marine Port &mdash; Terminal Operator Console</h2>
+        <p class="text-[11px] text-teal-100 mt-1">Adani Ports (APSEZ) • Berth Allocation & Customs Clearances</p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-slate-400 font-bold uppercase text-[9px] font-mono">Terminal Berth Queue</span>
+          <div class="text-base font-extrabold text-slate-800 mt-1">3 Vessels in Anchorage</div>
+          <p class="text-[10px] text-slate-500 font-mono mt-1">Queue cleared rate: 1.2 vessels / hr</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-slate-400 font-bold uppercase text-[9px] font-mono">Customs Gate Clearance</span>
+          <div class="text-base font-extrabold text-emerald-600 mt-1">98.2% Auto-Approved</div>
+          <p class="text-[10px] text-slate-500 font-mono mt-1">Via ICEGATE integrated customs API</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-slate-400 font-bold uppercase text-[9px] font-mono">Average Container Turnaround</span>
+          <div class="text-base font-extrabold text-blue-600 mt-1">18.4 Hours</div>
+          <p class="text-[10px] text-slate-500 font-mono mt-1">Target turnaround limit: 24.0 Hours</p>
+        </div>
+      </div>
+
+      <!-- Port Gate Clearance Console -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Inbound Freight Gate-In Approvals</h3>
+          <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono font-bold">Requires Port Action</span>
+        </div>
+
+        <div class="p-4 space-y-3">
+          <!-- Item 1: Rake Arrival -->
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-900">🚂 RAKE-WDFC-9021</span>
+                <span class="text-[10px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-mono font-bold">HELD AT PALANPUR</span>
+              </div>
+              <div class="text-slate-500 mt-1">Cargo: Punjab Oranges (Kinnow, 26 Tons) • ETA: Tomorrow 03:30</div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="alert('Berth 2 pre-allocated for train cargo.')" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-blue-700 transition-colors">
+                Pre-Allocate Berth 2
+              </button>
+              <button onclick="alert('Customs cleared. Train permitted to enter gate-in upon arrival.')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-700 transition-colors">
+                Approve Gate-In
+              </button>
+            </div>
+          </div>
+
+          <!-- Item 2: Truck Arrival -->
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-900">🚚 TRK-4491 (Ashok Leyland)</span>
+                <span class="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded font-mono font-bold">REROUTED TO RAIL</span>
+              </div>
+              <div class="text-slate-500 mt-1">Cargo: Auto Spare Parts (18 Tons) • ETA: Today 22:00</div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="alert('Digital QR code approved for gate-in.')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-1.5 rounded-lg font-bold transition-colors">
+                Verify QR Code
+              </button>
+              <button onclick="alert('Gatepass generated and sent to driver Ramesh Singh.')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-700 transition-colors">
+                Issue Gatepass
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
