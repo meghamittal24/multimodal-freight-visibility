@@ -9,6 +9,47 @@ let appState = {
   driverLang: 'hinglish', // 'hinglish' | 'english'
   showQrModal: false,
   map: null,
+  simulationActive: false,
+  simulationInterval: null,
+  vehicleMarkers: [],
+  paths: {
+    'VEH-01': [
+      { coords: [30.9010, 75.8573], loc: 'ICD Ludhiana Yard' },
+      { coords: [30.0000, 76.1000], loc: 'Ambala Line Junction' },
+      { coords: [29.1000, 76.4000], loc: 'Rohtak Rail Bypass' },
+      { coords: [28.1920, 76.6180], loc: 'Rewari WDFC Corridor' },
+      { coords: [27.2000, 75.6000], loc: 'Jaipur Outer Yard' },
+      { coords: [26.1000, 74.5000], loc: 'Ajmer Siding Segment' },
+      { coords: [25.1000, 73.5000], loc: 'Abu Road Siding' },
+      { coords: [24.1724, 72.4346], loc: 'Palanpur Siding, Gujarat Border' },
+      { coords: [23.5000, 71.1000], loc: 'Mahesana Transit Loop' },
+      { coords: [22.8390, 69.7042], loc: 'Mundra Port Berth 2 Gate-In' }
+    ],
+    'VEH-02': [
+      { coords: [28.4595, 77.0266], loc: 'Gurugram Warehouse' },
+      { coords: [28.3200, 76.8100], loc: 'Dharuhera Logistics Hub' },
+      { coords: [28.1920, 76.6180], loc: 'NH-48 Shahjahanpur / Kotputli' },
+      { coords: [27.3500, 75.8200], loc: 'Kotputli Bypass Road' },
+      { coords: [26.5000, 74.9000], loc: 'Ajmer Link Highway' },
+      { coords: [25.6000, 73.9500], loc: 'Beawar Road Toll Plaza' },
+      { coords: [24.7000, 73.0000], loc: 'Sirohi Expressway Segment' },
+      { coords: [23.9000, 72.0000], loc: 'Palanpur Link Road' },
+      { coords: [23.3000, 70.8000], loc: 'Bhachau Crossing' },
+      { coords: [22.8390, 69.7042], loc: 'Mundra Port Entrance Gate' }
+    ],
+    'VEH-03': [
+      { coords: [28.5600, 77.5500], loc: 'ICD Dadri Yard' },
+      { coords: [27.5000, 77.0000], loc: 'Mathura DFC Junction' },
+      { coords: [26.2000, 76.2000], loc: 'Sawai Madhopur Corridor' },
+      { coords: [24.8000, 75.5000], loc: 'Kota DFC Bypass' },
+      { coords: [23.5000, 74.8000], loc: 'Ratlam West Line' },
+      { coords: [22.2000, 74.1000], loc: 'Dahod Station Loop' },
+      { coords: [21.2000, 73.5000], loc: 'Surat DFC Siding' },
+      { coords: [20.2000, 73.0000], loc: 'Valsad Freight Track' },
+      { coords: [19.2000, 72.8500], loc: 'Kalyan Inbound Track' },
+      { coords: [18.9500, 72.9500], loc: 'JNPT Port, Mumbai' }
+    ]
+  },
   vehicles: [
     {
       id: 'VEH-01',
@@ -32,6 +73,7 @@ let appState = {
       alertEnglish: 'Vessel delayed by 10 hours at Mundra Port. HOLD train at Palanpur station cold-shed for 4 hours to avoid open-yard demurrage fines and fruit spoilage.',
       savings: '₹32,000 Port Fine Avoided',
       acknowledged: false,
+      pathIndex: 7,
       coords: [24.1724, 72.4346],
       legs: [
         { name: 'Truck (Farm → ICD Ludhiana)', mode: 'ROAD', time: '19 Aug 06:00 → 10:45', status: 'DONE', delay: '+45m' },
@@ -62,6 +104,7 @@ let appState = {
       alertEnglish: 'Highway jam ahead (4.5 hours delay). Divert truck to nearest Rewari Railway Station and load cargo onto the freight train.',
       savings: '3.5 Hours & ₹45,000 Penalty Saved',
       acknowledged: false,
+      pathIndex: 2,
       coords: [28.1920, 76.6180],
       legs: [
         { name: 'Gurugram Facility Dispatch', mode: 'ROAD', time: '20 Aug 08:00 → Active', status: 'ACTIVE', delay: '+4.5h Jam' },
@@ -90,6 +133,7 @@ let appState = {
       alertEnglish: 'All signals and berths clear. Proceed at normal speed.',
       savings: 'On Schedule',
       acknowledged: true,
+      pathIndex: 7,
       coords: [20.9042, 74.7749],
       legs: [
         { name: 'ICD Dadri WDFC Departure', mode: 'RAIL', time: '19 Aug 20:15 → Active', status: 'ACTIVE', delay: 'On Time' },
@@ -148,6 +192,13 @@ function renderApp() {
           </button>
           <button onclick="setViewMode('port')" class="px-2.5 py-1.5 rounded-lg transition-all ${appState.viewMode === 'port' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
             ⚓ Port Operator
+          </button>
+        </div>
+
+        <!-- Simulation Control -->
+        <div class="flex items-center gap-2">
+          <button onclick="toggleSimulation()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-white transition-all shadow-sm ${appState.simulationActive ? 'bg-rose-600 hover:bg-rose-700 animate-pulse border-2 border-rose-300' : 'bg-indigo-600 hover:bg-indigo-700 border-2 border-indigo-500'}">
+            ${appState.simulationActive ? '⏸️ Stop Auto-Sim' : '▶️ Run Auto-Sim'}
           </button>
         </div>
 
@@ -590,9 +641,18 @@ function adminSendOrder(vehId, statusType) {
     veh.acknowledged = false;
     appState.selectedVehicleId = vehId;
 
-    if (statusType === 'ON_TIME') {
+    if (statusType === 'PORT_DELAY') {
+      veh.delayMins = 210;
+      veh.delayReason = 'Mundra Berth 2 vessel delayed by 10 hours (Tidal storm).';
+      veh.dispatchOrder = 'HOLD train at Palanpur Station cold-shed for 4 hours.';
+    } else if (statusType === 'HIGHWAY_JAM') {
+      veh.delayMins = 180;
+      veh.delayReason = 'NH-48 Shahjahanpur toll 4.5-hour traffic bottleneck.';
+      veh.dispatchOrder = 'REROUTE: Divert to Rewari ICD and load on WDFC rail.';
+    } else if (statusType === 'ON_TIME') {
       veh.acknowledged = true;
       veh.delayMins = 0;
+      veh.delayReason = 'All railway tracks, sidings, and port berths on schedule.';
       veh.dispatchOrder = 'PROCEED on schedule.';
     }
   }
@@ -621,30 +681,124 @@ function initConnectedMap() {
   const mapElem = document.getElementById('connected-map');
   if (!mapElem || typeof L === 'undefined') return;
 
-  if (appState.map) {
-    appState.map.remove();
+  let map = appState.map;
+  if (!map || mapElem.innerHTML === "") {
+    if (appState.map) {
+      appState.map.remove();
+    }
+    map = L.map('connected-map').setView([26.5000, 72.5000], 5);
+    appState.map = map;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 18
+    }).addTo(map);
+
+    const coords = [
+      [30.9010, 75.8573], // Ludhiana
+      [28.1920, 76.6180], // Rewari
+      [24.1724, 72.4346], // Palanpur
+      [22.8390, 69.7042]  // Mundra Port
+    ];
+
+    L.polyline(coords, { color: '#2563eb', weight: 4, opacity: 0.5 }).addTo(map);
+
+    L.circleMarker([30.9010, 75.8573], { radius: 6, color: '#16a34a', fillColor: '#16a34a', fillOpacity: 1 }).addTo(map).bindPopup('Ludhiana ICD');
+    L.circleMarker([24.1724, 72.4346], { radius: 7, color: '#d97706', fillColor: '#d97706', fillOpacity: 1 }).addTo(map).bindPopup('Palanpur Siding (HOLD Point)');
+    L.circleMarker([22.8390, 69.7042], { radius: 6, color: '#dc2626', fillColor: '#dc2626', fillOpacity: 1 }).addTo(map).bindPopup('Mundra Marine Port');
   }
 
-  const map = L.map('connected-map').setView([26.5000, 72.5000], 6);
-  appState.map = map;
+  // Remove existing vehicle markers
+  if (appState.vehicleMarkers) {
+    appState.vehicleMarkers.forEach(m => map.removeLayer(m));
+  }
+  appState.vehicleMarkers = [];
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap',
-    maxZoom: 18
-  }).addTo(map);
+  // Draw all vehicle markers with emojis
+  appState.vehicles.forEach(v => {
+    const isSelected = v.id === appState.selectedVehicleId;
+    const emoji = v.type === 'TRAIN' ? '🚂' : '🚚';
+    const markerHtml = `<div style="font-size:18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); border: ${isSelected ? '2px solid #2563eb' : '1px solid #94a3b8'}; padding: 3px; background: white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer;">${emoji}</div>`;
+    
+    const icon = L.divIcon({
+      html: markerHtml,
+      className: 'custom-vehicle-icon',
+      iconSize: [26, 26],
+      iconAnchor: [13, 13]
+    });
+    
+    const marker = L.marker(v.coords, { icon: icon }).addTo(map).bindPopup(`<b>${v.code}</b><br>${v.cargo}<br>${v.currentLocation}`);
+    appState.vehicleMarkers.push(marker);
+  });
+}
 
-  const coords = [
-    [30.9010, 75.8573], // Ludhiana
-    [28.1920, 76.6180], // Rewari
-    [24.1724, 72.4346], // Palanpur
-    [22.8390, 69.7042]  // Mundra Port
-  ];
+function toggleSimulation() {
+  if (appState.simulationActive) {
+    appState.simulationActive = false;
+    if (appState.simulationInterval) {
+      clearInterval(appState.simulationInterval);
+      appState.simulationInterval = null;
+    }
+  } else {
+    appState.simulationActive = true;
+    // Reset all vehicles to the start of their paths
+    appState.vehicles.forEach(v => {
+      v.pathIndex = 0;
+      const path = appState.paths[v.id];
+      v.coords = path[0].coords;
+      v.currentLocation = path[0].loc;
+      v.status = 'ON_TIME';
+      v.acknowledged = true;
+      v.delayMins = 0;
+      v.delayReason = 'All railway tracks, sidings, and port berths on schedule.';
+      v.dispatchOrder = 'PROCEED on schedule.';
+    });
+    
+    appState.simulationInterval = setInterval(runSimulationStep, 2500);
+  }
+  renderApp();
+}
+window.toggleSimulation = toggleSimulation;
 
-  L.polyline(coords, { color: '#2563eb', weight: 4, opacity: 0.85 }).addTo(map);
+function runSimulationStep() {
+  appState.vehicles.forEach(v => {
+    const path = appState.paths[v.id];
+    
+    // For HELD state, hold the train at Palanpur (index 7)
+    if (v.status === 'HELD') {
+      if (v.pathIndex >= 7) {
+        v.coords = path[7].coords;
+        v.currentLocation = path[7].loc;
+        return;
+      }
+    }
+    
+    // For REROUTED state, we can simulate the truck cargo transferring to the WDFC train
+    if (v.status === 'REROUTED') {
+      // Keep moving along path, but change the vehicle name / type to reflect modal shift
+      v.vehicleName = 'Rerouted to WDFC Train (HR-55)';
+    }
 
-  L.circleMarker([30.9010, 75.8573], { radius: 6, color: '#16a34a', fillColor: '#16a34a', fillOpacity: 1 }).addTo(map).bindPopup('Ludhiana ICD');
-  L.circleMarker([24.1724, 72.4346], { radius: 7, color: '#d97706', fillColor: '#d97706', fillOpacity: 1 }).addTo(map).bindPopup('Palanpur Siding (HOLD Point)');
-  L.circleMarker([22.8390, 69.7042], { radius: 6, color: '#dc2626', fillColor: '#dc2626', fillOpacity: 1 }).addTo(map).bindPopup('Mundra Marine Port');
+    v.pathIndex++;
+    if (v.pathIndex >= path.length) {
+      v.pathIndex = 0; // Loop simulation
+    }
+
+    const currentStep = path[v.pathIndex];
+    v.coords = currentStep.coords;
+    v.currentLocation = currentStep.loc;
+
+    // Trigger alerts automatically at specific checkpoints
+    if (v.id === 'VEH-01' && v.pathIndex === 7) {
+      // Reached Palanpur. Trigger port delay and push notification popup!
+      adminSendOrder('VEH-01', 'PORT_DELAY');
+    } else if (v.id === 'VEH-02' && v.pathIndex === 2) {
+      // Reached Shahjahanpur. Trigger highway traffic jam and push notification!
+      adminSendOrder('VEH-02', 'HIGHWAY_JAM');
+    }
+  });
+
+  renderApp();
 }
 
 function renderShipperDashboard() {
