@@ -39,7 +39,7 @@ export class Blockchain {
   }
 
   createGenesisBlock() {
-    return new Block(0, "2026-08-14T12:00:00.000Z", { info: "CargoChain Genesis Block" }, "0");
+    return new Block(0, "2026-08-14T12:00:00.000Z", { info: "CargoChain Genesis Record" }, "0");
   }
 
   getLatestBlock() {

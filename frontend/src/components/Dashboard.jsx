@@ -375,7 +375,7 @@ export default function Dashboard({ selectShipmentForHandover, openDriverMobileV
               )}
               
               <div className="flex justify-between items-center text-[10px] pt-1">
-                <span className="text-slate-400 font-mono">Blockchain block appended</span>
+                <span className="text-slate-400 font-mono">Secure ledger record sealed</span>
                 <button
                   onClick={closeEmergencyAlert}
                   className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-sm"

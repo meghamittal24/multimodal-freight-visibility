@@ -85,7 +85,7 @@ export default function LedgerViewer() {
         <div>
           <div className="flex items-center gap-2">
             <Database className="h-6 w-6 text-slate-700" />
-            <h1 className="text-2xl font-bold tracking-tight text-slate-800">Blockchain Ledger Explorer</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-800">Secure Cryptographic Ledger</h1>
           </div>
           <p className="text-slate-500 mt-1">
             Real-time cryptographic audit trail of all logistical checkpoints and telemetry warnings.
@@ -128,10 +128,10 @@ export default function LedgerViewer() {
         <div className="flex items-start gap-4 p-5 bg-red-50 border border-red-200 rounded-2xl text-red-800 animate-pulse">
           <AlertTriangle className="h-6 w-6 shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-bold text-lg">Blockchain Integrity Broken</h3>
+            <h3 className="font-bold text-lg">Ledger Integrity Compromised</h3>
             <p className="mt-1 text-sm text-red-700">
-              The hash link has been broken starting at <strong>Block #{tamperedIndex}</strong> due to data modifications. 
-              The validation algorithm detected that the block's current hash does not correspond to its inputs, or the subsequent block's previous hash link is severed.
+              The cryptographic hash link has been broken starting at <strong>Record #{tamperedIndex}</strong> due to data modifications. 
+              The validation algorithm detected that the record's current hash does not correspond to its inputs, or the subsequent record's previous hash link is severed.
             </p>
             <div className="mt-3 text-xs bg-red-100 font-mono py-1 px-3 rounded-lg inline-block text-red-900">
               Fail Reason: {reason}
@@ -140,7 +140,7 @@ export default function LedgerViewer() {
         </div>
       )}
 
-      {/* Blockchain Visualization Flow */}
+      {/* Ledger Visualization Flow */}
       <div className="flex flex-col gap-6 relative">
         {chain.map((block, idx) => {
           const isBlockTampered = !isValid && idx >= tamperedIndex;
@@ -170,11 +170,11 @@ export default function LedgerViewer() {
                 >
                   <div className="flex items-center gap-2">
                     <span className="font-extrabold text-sm uppercase px-2 py-0.5 bg-white/20 rounded">
-                      Block #{block.index}
+                      Record #{block.index}
                     </span>
                     {block.index === 0 && (
                       <span className="text-xs px-2 py-0.5 bg-blue-500/20 text-blue-800 dark:text-blue-100 font-bold rounded">
-                        Genesis Block
+                        Genesis Record
                       </span>
                     )}
                   </div>
@@ -200,7 +200,7 @@ export default function LedgerViewer() {
                           : 'bg-slate-50 border-slate-100 text-slate-700'
                       }`}
                     >
-                      <span className="text-slate-400 block font-sans">Block Hash:</span>
+                      <span className="text-slate-400 block font-sans">Record Hash:</span>
                       <span className="truncate block font-bold" title={block.hash}>
                         {block.hash}
                       </span>
@@ -210,7 +210,7 @@ export default function LedgerViewer() {
                   {/* Block Payload */}
                   <div className="p-4 bg-slate-900 text-slate-200 rounded-xl font-mono text-xs overflow-x-auto space-y-2">
                     <div className="text-slate-400 font-sans border-b border-slate-800 pb-1 mb-2 flex items-center justify-between">
-                      <span>Payload Data (Immutable Ledger Store)</span>
+                      <span>Payload Data (Immutable Audit Log)</span>
                       <span className="text-[10px] text-blue-400">Nonce: {block.nonce}</span>
                     </div>
                     {tamperIndexMode === block.index ? (

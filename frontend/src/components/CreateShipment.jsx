@@ -181,12 +181,12 @@ export default function CreateShipment({ onShipmentCreated }) {
               {isMining ? (
                 <>
                   <RefreshCw className="h-5 w-5 animate-spin" />
-                  Cryptographic Hashing & Mining Block...
+                  Signing Cargo Record & Securing Ledger...
                 </>
               ) : (
                 <>
                   <Layers className="h-5 w-5" />
-                  Initiate Shipment & Seal Blockchain
+                  Initiate Shipment & Secure Ledger
                 </>
               )}
             </button>
@@ -200,9 +200,9 @@ export default function CreateShipment({ onShipmentCreated }) {
         {!isMining && !minedBlock && (
           <div className="flex-1 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center text-center text-slate-400 min-h-[300px]">
             <Layers className="h-12 w-12 text-slate-700 mb-3 stroke-[1.5]" />
-            <h3 className="text-white font-bold text-sm">Ledger Status: Awaiting Input</h3>
+            <h3 className="text-white font-bold text-sm">Ledger Status: Awaiting Registration</h3>
             <p className="text-xs text-slate-500 max-w-[220px] mt-1.5 leading-relaxed">
-              When a new consignment is initialized, the system mines a block to lock the details.
+              When a new consignment is initialized, the system calculates a cryptographic signature to lock the details.
             </p>
           </div>
         )}
@@ -216,10 +216,10 @@ export default function CreateShipment({ onShipmentCreated }) {
             </div>
             <div className="space-y-1">
               <h3 className="text-blue-400 font-bold text-sm uppercase tracking-wider animate-pulse">
-                Running Proof-of-Work
+                Generating Secure Signature
               </h3>
               <p className="text-[10px] text-slate-500 font-mono">
-                nonce++ | calculating SHA-256 hash...
+                calculating SHA-256 signature hash...
               </p>
             </div>
           </div>
@@ -232,7 +232,7 @@ export default function CreateShipment({ onShipmentCreated }) {
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-1.5">
                   <ShieldCheck className="h-5 w-5 text-emerald-400" />
-                  <span className="font-bold text-sm tracking-wide">Block #{minedBlock.index} Minted</span>
+                  <span className="font-bold text-sm tracking-wide">Ledger Entry #{minedBlock.index} Sealed</span>
                 </div>
                 <span className="text-[9px] px-2 py-0.5 bg-emerald-500/20 text-emerald-400 font-black rounded uppercase">
                   Secured
@@ -241,11 +241,11 @@ export default function CreateShipment({ onShipmentCreated }) {
 
               <div className="space-y-3 font-mono text-xs">
                 <div className="space-y-0.5">
-                  <span className="text-[9px] text-slate-500 block uppercase">Block Hash</span>
+                  <span className="text-[9px] text-slate-500 block uppercase">Record Hash</span>
                   <span className="text-blue-400 break-all text-[11px] leading-tight block">{minedBlock.hash}</span>
                 </div>
                 <div className="space-y-0.5">
-                  <span className="text-[9px] text-slate-500 block uppercase">Previous Block Link</span>
+                  <span className="text-[9px] text-slate-500 block uppercase">Previous Record Link</span>
                   <span className="text-slate-400 break-all block">{minedBlock.previousHash}</span>
                 </div>
                 
@@ -278,7 +278,7 @@ export default function CreateShipment({ onShipmentCreated }) {
                     <span>RFID/QR Generated</span>
                   </div>
                   <p className="text-[10px] text-slate-500 leading-normal">
-                    This QR represents the digital block certificate. Paste on cargo door for receiver scanning.
+                    This QR represents the digital cargo signature certificate. Paste on cargo door for receiver scanning.
                   </p>
                 </div>
               </div>

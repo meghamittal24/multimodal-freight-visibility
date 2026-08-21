@@ -177,7 +177,7 @@ export default function DriverView({ selectedShipment, onDeliveryComplete }) {
                   <ShieldCheck className="h-10 w-10 text-emerald-400 mx-auto" />
                   <div>
                     <h4 className="font-bold text-sm text-emerald-300">Delivery Verified</h4>
-                    <p className="text-[10px] text-white/40 mt-0.5">Blockchain transaction finalized.</p>
+                    <p className="text-[10px] text-white/40 mt-0.5">Ledger record sealed.</p>
                   </div>
                 </div>
               ) : !scanned ? (

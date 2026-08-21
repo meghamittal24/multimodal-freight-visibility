@@ -422,7 +422,7 @@ export default function HandoverVerification({ selectedShipment, onHandoverCompl
 
       </div>
 
-      {/* Submit Handover Transaction to Blockchain */}
+      {/* Submit Handover Transaction to Secure Ledger */}
       {step1Done && step2Done && (
         <div className="p-5 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 animate-fade-in shadow-sm">
           <div className="flex items-center gap-3">
@@ -432,7 +432,7 @@ export default function HandoverVerification({ selectedShipment, onHandoverCompl
             <div>
               <h3 className="font-bold text-emerald-900 text-base">Security Verification Complete</h3>
               <p className="text-xs text-emerald-700 mt-0.5">
-                Custody handoff is fully authorized by both parties. Ready to write this checkpoint permanently to block.
+                Custody handoff is fully authorized by both parties. Ready to write this checkpoint permanently to the ledger.
               </p>
             </div>
           </div>
@@ -440,7 +440,7 @@ export default function HandoverVerification({ selectedShipment, onHandoverCompl
             onClick={handleSubmitHandover}
             className="w-full md:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-lg shadow-emerald-600/20 active:scale-95 transition-all flex items-center justify-center gap-1.5"
           >
-            Mint Handover Block
+            Secure Handover Record
             <ArrowRight className="h-5 w-5" />
           </button>
         </div>

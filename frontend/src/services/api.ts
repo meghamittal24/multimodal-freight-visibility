@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ShipmentData, CorridorData, ImpactMetrics, RippleEffectGraph, SuggestedAction } from '../types';
+import { ShipmentData, ImpactMetrics, RippleEffectGraph, SuggestedAction } from '../types';
 
 const API_BASE_URL = window.location.port === '3000' ? 'http://localhost:5000/api/v1' : '/api/v1';
 
